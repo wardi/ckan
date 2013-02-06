@@ -83,6 +83,7 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
                 'country_code': [validators.ignore_missing,
                     converters.convert_to_tags('country_codes')]
                 })
+        schema.update({'__junk': [validators.ignore]})
 
         return schema
 
