@@ -70,13 +70,8 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         return []
 
     def form_to_db_schema_options(self, options):
-        return self.form_to_db_schema()
-
-    def db_to_form_schema_options(self, options):
-        return self.db_to_form_schema()
-
-    def form_to_db_schema(self):
-        schema = logic.schema.form_to_db_package_schema()
+        schema = lib_plugins.DefaultDatasetForm.form_to_db_schema_options(
+            self, options)
 
         # Add our custom country_code metadata field to the schema.
         schema.update({
@@ -87,8 +82,9 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
 
         return schema
 
-    def db_to_form_schema(self):
-        schema = logic.schema.db_to_form_package_schema()
+    def db_to_form_schema_options(self, options):
+        schema = lib_plugins.DefaultDatasetForm.db_to_form_schema_options(
+            self, options)
 
         # Add our custom country_code metadata field to the schema.
         schema.update({
