@@ -1,11 +1,11 @@
 import logging
+
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.navl.validators as validators
 import ckan.logic as logic
 import ckan.logic.converters as converters
-import ckan.lib.base as base
 
 
 class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
@@ -18,8 +18,8 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
     plugins.implements(plugins.IConfigurer, inherit=False)
     plugins.implements(plugins.IDatasetForm, inherit=False)
 
-    # These record how many times methods that this plugin otherwise wouldn't
-    # use are called, for testing purposes.
+    # These record how many times methods that this plugin's methods are
+    # called, for testing purposes.
     num_times_check_data_dict_called = 0
     num_times_new_template_called = 0
     num_times_comments_template_called = 0
@@ -36,10 +36,8 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         possible dataset country code values) using the API.
 
         '''
-        user = logic.get_action('get_site_user')({
-            'model': base.model, 'ignore_auth': True}, {})
-        context = {'model': base.model, 'session': base.model.Session,
-                'user': user['name']}
+        user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
+        context = {'user': user['name']}
         try:
             data = {'id': 'country_codes'}
             logic.get_action('vocabulary_show')(context, data)
