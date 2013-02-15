@@ -67,16 +67,9 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         # registers itself as the default (above).
         return []
 
-    def form_to_db_schema_options(self, options):
-        schema = lib_plugins.DefaultDatasetForm.form_to_db_schema_options(
-            self, options)
-        return self._form_to_db_schema_update(schema)
+    def form_to_db_schema(self):
+        schema = logic.schema.form_to_db_package_schema()
 
-    def form_to_db_schema(self, options):
-        schema = lib_plugins.DefaultDatasetForm.form_to_db_schema()
-        return self._form_to_db_schema_update(schema)
-
-    def _form_to_db_schema_update(self, schema):
         # Add our custom country_code metadata field to the schema.
         schema.update({
                 'country_code': [validators.ignore_missing,
@@ -86,16 +79,9 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
 
         return schema
 
-    def db_to_form_schema_options(self, options):
-        schema = lib_plugins.DefaultDatasetForm.db_to_form_schema_options(
-            self, options)
-        return self._db_to_form_schema_update(schema)
-
     def db_to_form_schema(self):
         schema = logic.schema.db_to_form_package_schema()
-        return self._db_to_form_schema_update(schema)
 
-    def _db_to_form_schema_update(self, schema):
         # Add our custom country_code metadata field to the schema.
         schema.update({
             'country_code': [
@@ -150,5 +136,7 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         ExampleIDatasetFormPlugin.num_times_package_form_called += 1
         return lib_plugins.DefaultDatasetForm.package_form(self)
 
-    def check_data_dict(self, data_dict):
+    def check_data_dict(self, data_dict, schema=None):
         ExampleIDatasetFormPlugin.num_times_check_data_dict_called += 1
+        return lib_plugins.DefaultDatasetForm.check_data_dict(self, data_dict,
+                schema)
