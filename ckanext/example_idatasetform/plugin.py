@@ -72,8 +72,8 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
             self, options)
         return self._form_to_db_schema_update(schema)
 
-    def form_to_db_schema(self, options):
-        schema = lib_plugins.DefaultDatasetForm.form_to_db_schema()
+    def form_to_db_schema(self):
+        schema = lib_plugins.DefaultDatasetForm.form_to_db_schema(self)
         return self._form_to_db_schema_update(schema)
 
     def _form_to_db_schema_update(self, schema):
