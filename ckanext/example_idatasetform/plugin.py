@@ -80,7 +80,9 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         # convert_to_extras instead of convert_to_tags.
         schema.update({
                 'custom_text': [validators.ignore_missing,
-                    converters.convert_to_extras]
+                    converters.convert_to_extras],
+                'xcustom_text': [validators.ignore_missing,
+                    converters.convert_to_extras],
                 })
 
         return schema
@@ -102,7 +104,9 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         # Add our custom_text field to the dataset schema.
         schema.update({
             'custom_text': [
-                converters.convert_from_extras, validators.ignore_missing]
+                converters.convert_from_extras, validators.ignore_missing],
+            'xcustom_text': [
+                converters.convert_from_extras, validators.ignore_missing],
             })
 
         return schema

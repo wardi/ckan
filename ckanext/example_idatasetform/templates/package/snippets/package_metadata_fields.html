@@ -35,6 +35,8 @@
 
 {{ form.input('custom_text', label=_('Custom Text'), id='field-custom_text', placeholder=_('custom text'), value=data.custom_text, error=errors.custom_text, classes=['control-medium']) }}
 
+{{ form.input('xcustom_text', label=_('xCustom Text'), id='field-xcustom_text', placeholder=_('xcustom text'), value=data.xcustom_text, error=errors.xcustom_text, classes=['control-medium']) }}
+
 {#
 {% block custom_fields %}
   {% snippet 'snippets/custom_form_fields.html', extras=data.extras, errors=errors, limit=3 %}
