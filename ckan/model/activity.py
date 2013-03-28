@@ -298,3 +298,18 @@ def recently_changed_packages_activity_list(limit, offset):
     '''
     q = _changed_packages_activity_query()
     return _activities_at_offset(q, limit, offset)
+
+
+def changed_packages_activity_list_since(since, limit):
+    '''Return the site-wide stream of changed package activities since a given
+    date.
+
+    This activity stream includes recent 'new package', 'changed package' and
+    'deleted package' activities for the whole site.
+
+    '''
+    import ckan.model as model
+    q = _changed_packages_activity_query()
+    q = q.order_by(model.Activity.timestamp)
+    q = q.filter(model.Activity.timestamp > since)
+    return q.limit(limit)

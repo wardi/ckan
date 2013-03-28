@@ -1991,6 +1991,33 @@ def recently_changed_packages_activity_list(context, data_dict):
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
+def changed_packages_activity_list_since(context, data_dict):
+    '''Return the activity stream of all recently added or changed packages.
+
+    :param since_time: starting date/time
+
+    Limited to 31 records (configurable via the
+    ckan.activity_list_hard_limit setting) but may be called repeatedly
+    with the timestamp of the last record to collect all activities.
+
+    :rtype: list of dictionaries
+    '''
+
+    model = context['model']
+    since = _get_or_bust(data_dict, 'since_time')
+    try:
+        since_time = logic.validators.isodate(since, None)
+    except logic.validators.Invalid, e:
+        raise ValidationError({'since_time':e.error})
+
+    # hard limit this api to reduce opportunity for abuse
+    limit = int(config.get('ckan.activity_list_hard_limit', 31))
+
+    activity_objects = model.activity.changed_packages_activity_list_since(
+        since_time, limit)
+
+    return model_dictize.activity_list_dictize(activity_objects, context)
+
 def activity_detail_list(context, data_dict):
     '''Return an activity's list of activity detail items.
 
