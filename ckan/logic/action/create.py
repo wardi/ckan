@@ -186,6 +186,21 @@ def package_create(context, data_dict):
 
     return output
 
+
+
+def profileit(func):
+    import cProfile
+    import time
+    def wrapper(*args, **kwargs):
+        datafn = "/var/www/html/log/%s-%s.profile" % (func.__name__, time.time())
+        prof = cProfile.Profile()
+        retval = prof.runcall(func, *args, **kwargs)
+        prof.dump_stats(datafn)
+        return retval
+
+    return wrapper
+
+@profileit
 def resource_create(context, data_dict):
     '''Appends a new resource to a datasets list of resources.
 
