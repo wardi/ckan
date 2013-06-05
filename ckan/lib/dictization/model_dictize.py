@@ -201,14 +201,22 @@ def package_dictize(pkg, context):
     May raise NotFound. TODO: understand what the specific set of
     circumstances are that cause this.
     '''
+    import time
+    timestamps = []
+    def ts(i):
+        "poor man's line_profiler"
+        timestamps.append((i, time.time()))
+    ts(str(context))
     model = context['model']
     #package
     package_rev = model.package_revision_table
     q = select([package_rev]).where(package_rev.c.id == pkg.id)
     result = _execute_with_revision(q, package_rev, context).first()
+    ts(10)
     if not result:
         raise logic.NotFound
     result_dict = d.table_dictize(result, context)
+    ts(11)
     #resources
     res_rev = model.resource_revision_table
     resource_group = model.resource_group_table
@@ -216,8 +224,10 @@ def package_dictize(pkg, context):
                resource_group.c.id == res_rev.c.resource_group_id))
     q = q.where(resource_group.c.package_id == pkg.id)
     result = _execute_with_revision(q, res_rev, context)
+    ts(20)
     result_dict["resources"] = resource_list_dictize(result, context)
     result_dict['num_resources'] = len(result_dict.get('resources', []))
+    ts(21)
 
     #tags
     tag_rev = model.package_tag_revision_table
@@ -226,8 +236,10 @@ def package_dictize(pkg, context):
         from_obj=tag_rev.join(tag, tag.c.id == tag_rev.c.tag_id)
         ).where(tag_rev.c.package_id == pkg.id)
     result = _execute_with_revision(q, tag_rev, context)
+    ts(30)
     result_dict["tags"] = d.obj_list_dictize(result, context, lambda x: x["name"])
     result_dict['num_tags'] = len(result_dict.get('tags', []))
+    ts(31)
 
     # Add display_names to tags. At first a tag's display_name is just the
     # same as its name, but the display_name might get changed later (e.g.
@@ -236,14 +248,18 @@ def package_dictize(pkg, context):
         assert not tag.has_key('display_name')
         tag['display_name'] = tag['name']
 
+    ts(32)
     #extras
     extra_rev = model.extra_revision_table
     q = select([extra_rev]).where(extra_rev.c.package_id == pkg.id)
     result = _execute_with_revision(q, extra_rev, context)
+    ts(40)
     result_dict["extras"] = extras_list_dictize(result, context)
+    ts(41)
     #tracking
     tracking = model.TrackingSummary.get_for_package(pkg.id)
     result_dict['tracking_summary'] = tracking
+    ts(50)
     #groups
     member_rev = model.member_revision_table
     group = model.group_table
@@ -253,25 +269,32 @@ def package_dictize(pkg, context):
                 .where(member_rev.c.state == 'active') \
                 .where(group.c.is_organization == False)
     result = _execute_with_revision(q, member_rev, context)
+    ts(60)
     result_dict["groups"] = d.obj_list_dictize(result, context)
+    ts(61)
     #owning organization
     group_rev = model.group_revision_table
     q = select([group_rev]
                ).where(group_rev.c.id == pkg.owner_org) \
                 .where(group_rev.c.state == 'active')
     result = _execute_with_revision(q, group_rev, context)
+    ts(70)
     organizations = d.obj_list_dictize(result, context)
     if organizations:
         result_dict["organization"] = organizations[0]
     else:
         result_dict["organization"] = None
+    ts(71)
     #relations
     rel_rev = model.package_relationship_revision_table
     q = select([rel_rev]).where(rel_rev.c.subject_package_id == pkg.id)
     result = _execute_with_revision(q, rel_rev, context)
+    ts(80)
     result_dict["relationships_as_subject"] = d.obj_list_dictize(result, context)
+    ts(81)
     q = select([rel_rev]).where(rel_rev.c.object_package_id == pkg.id)
     result = _execute_with_revision(q, rel_rev, context)
+    ts(82)
     result_dict["relationships_as_object"] = d.obj_list_dictize(result, context)
 
     # Extra properties from the domain object
@@ -304,6 +327,12 @@ def package_dictize(pkg, context):
         for item in plugins.PluginImplementations( plugins.IPackageController):
             result_dict = item.before_view(result_dict)
 
+    with open("/var/www/log/package_dictize.log", 'a') as f:
+        prev = 0
+        for i, t in timestamps:
+            f.write("%s: %f\n" % (i, t-prev))
+            prev = t
+        f.write('total: %f\n\n' % (t-timestamps[0][1],))
     return result_dict
 
 def _get_members(context, group, member_type):
