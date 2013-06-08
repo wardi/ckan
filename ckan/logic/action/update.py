@@ -961,6 +961,19 @@ def user_role_bulk_update(context, data_dict):
     return _get_action('roles_show')(context, data_dict)
 
 
+def profileit(func):
+    import cProfile
+    import time
+    def wrapper(*args, **kwargs):
+        datafn = "/var/www/html/log/%s-%s.profile" % (func.__name__, time.time())
+        prof = cProfile.Profile()
+        retval = prof.runcall(func, *args, **kwargs)
+        prof.dump_stats(datafn)
+        return retval
+
+    return wrapper
+
+@profileit
 def dashboard_mark_activities_old(context, data_dict):
     '''Mark all the authorized user's new dashboard activities as old.
 
