@@ -929,6 +929,19 @@ def tag_show(context, data_dict):
 
     return model_dictize.tag_dictize(tag,context)
 
+def profileit(func):
+    import cProfile
+    import time
+    def wrapper(*args, **kwargs):
+        datafn = "/var/www/html/log/%s-%s.profile" % (func.__name__, time.time())
+        prof = cProfile.Profile()
+        retval = prof.runcall(func, *args, **kwargs)
+        prof.dump_stats(datafn)
+        return retval
+
+    return wrapper
+
+@profileit
 def user_show(context, data_dict):
     '''Return a user account.
 
