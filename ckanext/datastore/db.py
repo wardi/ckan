@@ -265,7 +265,7 @@ def check_fields(context, fields):
             raise ValidationError({
                 'fields': ['"{0}" is not a valid field type'.format(field['type'])]
             })
-        elif not _is_valid_field_name(field['id']):
+        elif not _is_valid_field_name(unicode(field['id'])):
             raise ValidationError({
                 'fields': ['"{0}" is not a valid field name'.format(field['id'])]
             })
@@ -326,7 +326,7 @@ def create_table(context, data_dict):
                 })
 
     fields = datastore_fields + supplied_fields + extra_fields
-    sql_fields = u", ".join([u'"{0}" {1}'.format(f['id'].replace('%', '%%'), f['type'])
+    sql_fields = u", ".join([u'"{0}" {1}'.format(unicode(f['id']).replace('%', '%%'), f['type'])
                             for f in fields])
 
     sql_string = u'CREATE TABLE "{0}" ({1});'.format(
