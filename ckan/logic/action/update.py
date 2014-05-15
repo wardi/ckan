@@ -453,8 +453,8 @@ def _group_or_org_update(context, data_dict, is_org=False):
     else:
         rev.message = _(u'REST API: Update object %s') % data.get("name")
 
-    context['prevent_packages_update'] = is_org
-    group = model_save.group_dict_save(data, context)
+    group = model_save.group_dict_save(data, context,
+        prevent_packages_update=is_org)
 
     if parent:
         parent_group = model.Group.get( parent )
