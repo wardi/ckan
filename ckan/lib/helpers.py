@@ -101,6 +101,21 @@ def url_for_static(*args, **kw):
     return my_url
 
 
+def is_url(*args, **kw):
+    '''
+    Returns True if argument parses as a http, https or ftp URL
+    '''
+    if not args:
+        return False
+    try:
+        url = urlparse.urlparse(args[0])
+    except ValueError:
+        return False
+
+    valid_schemes = ('http', 'https', 'ftp')
+    return url.scheme in valid_schemes
+
+
 def _add_i18n_to_url(url_to_amend, **kw):
     # If the locale keyword param is provided then the url is rewritten
     # using that locale .If return_to is provided this is used as the url
@@ -1587,6 +1602,16 @@ localised_SI_number = formatters.localised_SI_number
 localised_nice_date = formatters.localised_nice_date
 localised_filesize = formatters.localised_filesize
 
+
+def get_organization(org=None, include_datasets=False):
+    if org is None:
+        return {}
+    try:
+        return logic.get_action('organization_show')({}, {'id': org, 'include_datasets': include_datasets})
+    except (NotFound, ValidationError, NotAuthorized):
+        return {}
+
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
@@ -1594,6 +1619,7 @@ __allowed_functions__ = [
     'url',
     'url_for',
     'url_for_static',
+    'is_url',
     'lang',
     'flash',
     'flash_error',
@@ -1671,6 +1697,7 @@ __allowed_functions__ = [
     'localised_nice_date',
     'localised_filesize',
     'list_dict_filter',
+    'get_organization',
     # imported into ckan.lib.helpers
     'literal',
     'link_to',
