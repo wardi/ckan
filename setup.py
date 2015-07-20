@@ -19,7 +19,7 @@ setup(
     long_description =__long_description__,
     zip_safe=False,
     packages=find_packages(exclude=['ez_setup']),
-    namespace_packages=['ckanext', 'ckanext.stats'],
+    namespace_packages=['ckanext'],
     include_package_data=True,
     package_data={'ckan': [
         'i18n/*/LC_MESSAGES/*.mo',
