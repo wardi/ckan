@@ -1065,6 +1065,7 @@ def user_show(context, data_dict):
 
     _check_access('user_show',context, data_dict)
 
+    sysadmin = authz.is_sysadmin(context.get('user'))
     include_password_hash = sysadmin and asbool(
         data_dict.get('include_password_hash', False))
 
