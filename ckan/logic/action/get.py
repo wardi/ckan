@@ -22,6 +22,8 @@ import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
 import ckan.new_authz as new_authz
 
+from paste.deploy.converters import asbool
+
 from ckan.common import _
 
 log = logging.getLogger('ckan.logic')
