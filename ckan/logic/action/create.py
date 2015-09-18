@@ -17,7 +17,7 @@ import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
 
 from ckan.common import _
-from ckan import authz
+from ckan import new_authz as authz
 
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship

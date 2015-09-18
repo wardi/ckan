@@ -21,7 +21,7 @@ import ckan.lib.email_notifications as email_notifications
 import ckan.lib.search as search
 
 from ckan.common import _, request
-from ckan import authz
+from ckan import new_authz as authz
 
 log = logging.getLogger(__name__)
 
