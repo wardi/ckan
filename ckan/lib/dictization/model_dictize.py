@@ -465,7 +465,7 @@ def user_dictize(user, context, include_password_hash=False):
         result_dict.pop('reset_key', None)
         result_dict.pop('email', None)
 
-    if authz.is_sysadmin(requester):
+    if new_authz.is_sysadmin(requester):
         if include_password_hash:
             result_dict['password_hash'] = password_hash
 
