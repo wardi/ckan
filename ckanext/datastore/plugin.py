@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import sys
 import logging
 import re
@@ -52,6 +54,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IDomainObjectModification, inherit=True)
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IResourceController, inherit=True)
+    p.implements(p.ITemplateHelpers)
     p.implements(interfaces.IDatastore, inherit=True)
 
     legacy_mode = False
@@ -269,9 +272,14 @@ class DatastorePlugin(p.SingletonPlugin):
                 'datastore_change_permissions': auth.datastore_change_permissions}
 
     def before_map(self, m):
-        m.connect('/datastore/dump/{resource_id}',
-                  controller='ckanext.datastore.controller:DatastoreController',
-                  action='dump')
+        m.connect(
+            '/datastore/dump/{resource_id}',
+            controller='ckanext.datastore.controller:DatastoreController',
+            action='dump')
+        m.connect(
+            'resource_dictionary', '/dataset/{id}/dictionary/{resource_id}',
+            controller='ckanext.datastore.controller:DatastoreController',
+            action='dictionary', ckan_icon='book')
         return m
 
     def before_show(self, resource_dict):
@@ -531,3 +539,7 @@ class DatastorePlugin(p.SingletonPlugin):
         if field:
             rank_alias += u' ' + field
         return u'"{0}"'.format(rank_alias)
+
+    def get_helpers(self):
+        return {
+            'datastore_dictionary': datastore_helpers.datastore_dictionary}

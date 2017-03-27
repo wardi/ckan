@@ -345,8 +345,17 @@ def package_update(context, data_dict):
         rev.message = _(u'REST API: Update object %s') % data.get("name")
 
     #avoid revisioning by updating directly
+    #unless specified
+    try:
+        if data_dict.get('metadata_modified',"")[10:19] == 'T00:00:00':
+            date_modified = data_dict.get('metadata_modified')
+            metadata_modified = datetime.datetime.strptime(date_modified, '%Y-%m-%dT%H:%M:%S.%f')
+        else:
+            metadata_modified = datetime.datetime.utcnow()
+    except:
+        metadata_modified = datetime.datetime.utcnow()
     model.Session.query(model.Package).filter_by(id=pkg.id).update(
-        {"metadata_modified": datetime.datetime.utcnow()})
+        {"metadata_modified": metadata_modified})
     model.Session.refresh(pkg)
 
     pkg = model_save.package_dict_save(data, context)

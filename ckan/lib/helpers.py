@@ -879,6 +879,8 @@ def markdown_extract(text, extract_length=190):
     if not text:
         return ''
     plain = RE_MD_HTML_TAGS.sub('', markdown(text))
+    if "MORE INFO" in plain:
+        plain = plain[:-10]
     if not extract_length or len(plain) < extract_length:
         return literal(plain)
     return literal(unicode(truncate(plain, length=extract_length,
@@ -1720,7 +1722,7 @@ def html_auto_link(data):
     return data
 
 
-def render_markdown(data, auto_link=True, allow_html=False):
+def render_markdown(data, auto_link=True, allow_html=True):
     ''' Returns the data as rendered markdown
 
     :param auto_link: Should ckan specific links be created e.g. `group:xxx`

@@ -158,6 +158,7 @@ this.ckan.module('recline_view', function (jQuery, _) {
             model: dataset
           })
         },
+/*
         {
           id: 'graph',
           label: 'Graph',
@@ -172,6 +173,7 @@ this.ckan.module('recline_view', function (jQuery, _) {
             model: dataset
           })
         }
+*/
       ];
 
       var sidebarViews = [

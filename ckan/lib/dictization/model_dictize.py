@@ -464,10 +464,13 @@ def group_dictize(group, context,
     if image_url and not image_url.startswith('http'):
         #munge here should not have an effect only doing it incase
         #of potential vulnerability of dodgy api input
+        parsed = urlparse.urlparse(config.get('ckan.site_url', 'http://0.0.0.0'))
         image_url = munge.munge_filename_legacy(image_url)
         result_dict['image_display_url'] = h.url_for_static(
             'uploads/group/%s' % result_dict.get('image_url'),
-            qualified=True
+            qualified=True,
+            host=str(parsed.netloc + parsed.path),
+            protocol=str(parsed.scheme)
         )
     return result_dict
 

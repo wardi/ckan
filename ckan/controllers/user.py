@@ -83,7 +83,7 @@ class UserController(base.BaseController):
 
         c.user_dict = user_dict
         c.is_myself = user_dict['name'] == c.user
-        c.about_formatted = h.render_markdown(user_dict['about'])
+        c.about_formatted = h.render_markdown(user_dict['about'],allow_html=False)
 
     ## end hooks
 

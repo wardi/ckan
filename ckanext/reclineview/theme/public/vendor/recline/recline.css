@@ -642,3 +642,12 @@ classes should alter those!
 .recline-timeline {
   position: relative;
 }
+
+.recline-data-explorer .header .navigation,
+.recline-data-explorer .header .menu-right {
+  display: none;
+}
+
+.header .recline-results-info {
+  margin-left: 0;
+}

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import logging
 import json
 
@@ -5,6 +7,7 @@ import sqlparse
 
 import paste.deploy.converters as converters
 
+from ckan.plugins.toolkit import get_action, ObjectNotFound, NotAuthorized
 
 log = logging.getLogger(__name__)
 
@@ -107,3 +110,16 @@ def identifier(s):
     Return s as a quoted postgres identifier
     """
     return u'"' + s.replace(u'"', u'""').replace(u'\0', '') + u'"'
+
+
+def datastore_dictionary(resource_id):
+    """
+    Return the data dictionary info for a resource
+    """
+    try:
+        return [
+            f for f in get_action('datastore_search')(
+                None, {u'resource_id': resource_id, u'limit': 0})['fields']
+            if not f['id'].startswith(u'_')]
+    except (ObjectNotFound, NotAuthorized):
+        return []
