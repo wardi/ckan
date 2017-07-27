@@ -2,13 +2,13 @@
 
 {% block resource_actions_inner %}
   {{ super() }}
-  {% if res.datastore_active %}
+  {% if res.datastore_active or res.query %}
     <li>{% snippet 'package/snippets/data_api_button.html', resource=res,  datastore_root_url=c.datastore_api %}</li>
   {% endif %}
 {% endblock %}
 
 {% block resource_additional_information_inner %}
-  {% if res.datastore_active %}
+  {% if res.datastore_active or res.query %}
     {% set ddict=h.datastore_dictionary(res.id) %}
     <div class="module-content">
       <h2>{{ _('Data Dictionary') }}</h2>
