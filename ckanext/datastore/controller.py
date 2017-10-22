@@ -108,7 +108,6 @@ class DatastoreController(BaseController):
             'datastore/dictionary.html',
             extra_vars={'fields': fields})
 
-
     def run_query(self, resource_id):
         try:
             resource = get_action('resource_show')(None, {'id': resource_id})
