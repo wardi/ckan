@@ -9,6 +9,7 @@ import datetime
 import time
 import json
 from typing import Any, Union, TYPE_CHECKING, cast
+from copy import deepcopy
 
 import ckan.lib.helpers as h
 import ckan.plugins as plugins
@@ -94,6 +95,8 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
     else:
         log.error('Could not find resource %s after all', id)
         raise NotFound(_('Resource was not found.'))
+    original_package_dict = dict(pkg_dict)
+    original_package_dict['resources'] = list(resources)
 
     # Persist the datastore_active extra if already present and not provided
     if ('datastore_active' in resource.extras and
@@ -107,8 +110,12 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
     resources[n] = data_dict
 
     try:
-        context['use_cache'] = False
-        updated_pkg_dict = _get_action('package_update')(context, pkg_dict)
+        update_context = dict(
+            context,
+            use_cache=False,
+            original_package_dict=original_package_dict,
+        )
+        updated_pkg_dict = _get_action('package_update')(update_context, pkg_dict)
     except ValidationError as e:
         try:
             error_dict = cast("list[ErrorDict]", e.error_dict['resources'])[n]
@@ -276,8 +283,25 @@ def package_update(
     _check_access('package_update', context, data_dict)
 
     user = context['user']
-    # get the schema
 
+    # original package dict for validators and faster updates
+    if ('original_package_dict' not in context
+            or context['original_package_dict']['id'] != pkg.id):
+        package_show_context = {
+            'model': context['model'],
+            'session': context['session'],
+            'user': context['user'],
+            'auth_user_obj': context['auth_user_obj'],
+            'ignore_auth': context.get('ignore_auth', False),
+            'for_update': True,
+        }
+
+        context['original_package_dict'] = _get_action('package_show')(
+            package_show_context,
+            {'id': pkg.id}
+        )
+
+    # get the schema
     package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
     schema = context.get('schema') or package_plugin.update_package_schema()
     if 'api_version' not in context:
@@ -474,11 +498,19 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
     if name_or_id is None:
         raise ValidationError({'match__id': _('Missing value')})
 
-    package_show_context = context.copy()
-    package_show_context['for_update'] = True
+    package_show_context = {
+        'model': context['model'],
+        'session': context['session'],
+        'user': context['user'],
+        'auth_user_obj': context['auth_user_obj'],
+        'ignore_auth': context.get('ignore_auth', False),
+        'for_update': True,
+    }
     orig = _get_action('package_show')(
         package_show_context,
         {'id': name_or_id})
+    # we could modify any part of orig
+    original_package_dict = deepcopy(orig)
 
     pkg = package_show_context['package']  # side-effect of package_show
 
@@ -526,7 +558,11 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
     # on update or "nothing changed" status once possible
     rval = {
         'package': _get_action('package_update')(
-            cast(Context, dict(context, package=pkg)),
+            cast(Context, dict(
+                context,
+                package=pkg,
+                original_package_dict=original_package_dict,
+            )),
             orig)}
     if 'include' in data_dict:
         dfunc.filter_glob_match(rval, data_dict['include'])

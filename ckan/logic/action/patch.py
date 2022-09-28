@@ -51,7 +51,8 @@ def package_patch(
     patched = dict(package_dict)
     patched.update(data_dict)
     patched['id'] = package_dict['id']
-    return _get_action('package_update')(context, patched)
+    update_context = dict(context, original_package_dict=package_dict)
+    return _get_action('package_update')(update_context, patched)
 
 
 def resource_patch(context: Context,
